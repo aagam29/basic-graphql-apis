@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgres://postgres:qwedsa@localhost:5432/playground"
+}
+
+model contact_label {
+  contact_id Int
+  label_id   Int
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+  contacts   contacts @relation(fields: [contact_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  labels     labels   @relation(fields: [label_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([contact_id, label_id])
+}
+
+model contacts {
+  id            Int             @id @default(autoincrement())
+  name          String          @db.VarChar(255)
+  email         String?         @db.VarChar(255)
+  phone         String?         @db.VarChar(255)
+  user_id       Int?
+  created_at    DateTime        @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime        @default(now()) @db.Timestamptz(6)
+  contact_label contact_label[]
+  users         users?          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model labels {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique @db.VarChar(255)
+  created_at    DateTime        @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime        @default(now()) @db.Timestamptz(6)
+  contact_label contact_label[]
+}
+
+model users {
+  id         Int        @id @default(autoincrement())
+  name       String     @db.VarChar(255)
+  email      String     @unique @db.VarChar(255)
+  phone      String     @unique @db.VarChar(255)
+  created_at DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at DateTime   @default(now()) @db.Timestamptz(6)
+  contacts   contacts[]
+}
